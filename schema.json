@@ -1,0 +1,255 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://automatelab.tech/datasets/saas-webhook-catalog/v0/row.schema.json",
+  "title": "SaaS webhook event catalog — row schema (v0)",
+  "description": "One row per (vendor, event_name) pair. Fields below describe a single webhook event emitted by a SaaS product, intended for ingestion into HuggingFace datasets and rendering on the automatelab.tech/webhooks/ companion site. Schema-only, no payload bodies redistributed.",
+  "type": "object",
+  "required": [
+    "vendor",
+    "vendor_display_name",
+    "category",
+    "event_name",
+    "trigger_description",
+    "payload_schema",
+    "auth_method",
+    "docs_url",
+    "last_introspected_at",
+    "source_extractor_version",
+    "extraction_method"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "vendor": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*[a-z0-9]$",
+      "description": "Kebab-case vendor slug. Stable identifier used in URLs (e.g. /webhooks/<vendor>/) and as a join key for any downstream consumer. Must match vendors.yaml.slug."
+    },
+    "vendor_display_name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable vendor name with original casing (e.g. 'GitHub', 'Microsoft Teams')."
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "collaboration",
+        "dev-tools",
+        "payments",
+        "crm",
+        "support",
+        "scheduling",
+        "ops",
+        "communications",
+        "marketing",
+        "ats",
+        "hris",
+        "ecommerce"
+      ],
+      "description": "High-level grouping for companion site index facets. Closed enum so the facet UI is bounded; extension requires deliberate dataset version bump."
+    },
+    "event_name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Canonical event identifier as emitted by the vendor (e.g. 'invoice.payment_succeeded', 'pull_request.opened'). Exactly as the vendor uses it — do not normalize casing or punctuation, that's the value developers will be searching for."
+    },
+    "event_namespace": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Optional namespace or resource grouping if the vendor uses one (e.g. for Slack the namespace might be 'events_api'). Null when the vendor has a single flat event space."
+    },
+    "trigger_description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500,
+      "description": "Short, factual summary of what triggers this event. Facts only — paraphrased from docs, never copied. Max 500 chars to stay clearly in fair-use facts territory and to keep companion-site cards compact."
+    },
+    "payload_schema": {
+      "type": "object",
+      "description": "JSON Schema (Draft 2020-12) describing the event payload shape. Field names + types + descriptions only. No example values, no vendor marketing copy. If the vendor publishes their own JSON Schema or OpenAPI fragment, normalize it into Draft 2020-12 here.",
+      "required": [
+        "$schema",
+        "type"
+      ],
+      "properties": {
+        "$schema": {
+          "type": "string",
+          "const": "https://json-schema.org/draft/2020-12/schema"
+        }
+      }
+    },
+    "required_oauth_scopes": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      },
+      "description": "OAuth scopes the receiving app must hold to receive this event. Null if vendor uses API keys (no scopes) or scopes are not documented per-event."
+    },
+    "required_subscription_event": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Some vendors require subscribing to a parent event identifier that differs from the event_name (e.g. HubSpot 'contact.creation' subscription emits a specific event shape). Null when subscription identifier equals event_name."
+    },
+    "auth_method": {
+      "type": "string",
+      "enum": [
+        "hmac-sha256",
+        "hmac-sha1",
+        "hmac-sha512",
+        "rsa-signature",
+        "bearer-token",
+        "shared-secret-header",
+        "mtls",
+        "basic-auth",
+        "none",
+        "other"
+      ],
+      "description": "How the vendor authenticates the webhook delivery. Closed enum covers the common shapes; rarer methods go in `signature_algorithm_detail` with auth_method='other'."
+    },
+    "signature_header": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "HTTP header name carrying the signature or auth token (e.g. 'Stripe-Signature', 'X-Hub-Signature-256'). Null when auth_method is 'none' or signature is sent in body."
+    },
+    "signature_algorithm_detail": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Free-text detail when the auth_method enum is insufficient (e.g. for 'other', or to note 'HMAC of timestamp.body concatenated', or non-standard key derivation)."
+    },
+    "retry_policy": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "max_attempts": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "backoff": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Free-text description of backoff policy as documented (e.g. 'exponential, capped at 24h')."
+        },
+        "total_retry_window": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "ISO 8601 duration or natural-language description (e.g. 'PT72H', '3 days')."
+        }
+      },
+      "description": "Structured retry behavior per vendor docs. Null when vendor does not document retries."
+    },
+    "max_payload_size_bytes": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0,
+      "description": "Documented maximum payload size, if vendor publishes one."
+    },
+    "idempotency_key_header": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Header name carrying the per-delivery idempotency key, if vendor provides one (e.g. Stripe 'Stripe-Signature' timestamp, GitHub 'X-GitHub-Delivery')."
+    },
+    "event_id_header": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Header name carrying a per-delivery unique event ID (overlaps with idempotency_key_header for some vendors; both kept since vendors differ on naming intent)."
+    },
+    "delivery_guarantees": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "at-least-once",
+        "at-most-once",
+        "exactly-once",
+        "best-effort",
+        null
+      ],
+      "description": "Delivery semantics as documented by the vendor."
+    },
+    "delivery": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "webhook",
+        "websocket",
+        "sse",
+        "polling",
+        null
+      ],
+      "description": "Transport mechanism by which the event reaches the consumer. 'webhook' (HTTP POST callback) is the default and may be left null; explicitly tag for vendors that mix delivery mechanisms (Discord emits Gateway events over websocket and interaction webhooks over HTTP; tagging required per the 2026-05-13 ToS audit compliance obligation)."
+    },
+    "docs_url": {
+      "type": "string",
+      "format": "uri",
+      "description": "Canonical URL to the vendor docs page that describes this event. Must be public, no auth wall."
+    },
+    "last_introspected_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC timestamp of the last successful extraction of this row. Used by the monthly auto-update to surface stale rows."
+    },
+    "source_extractor_version": {
+      "type": "string",
+      "pattern": "^v[0-9]+(\\.[0-9]+)*(-[a-z0-9]+)?$",
+      "description": "Version of the per-vendor extractor that produced this row. Lets downstream consumers correlate row quality with extractor improvements."
+    },
+    "extraction_method": {
+      "type": "string",
+      "enum": [
+        "manual-html",
+        "manual-api-introspection",
+        "llm-assisted",
+        "vendor-openapi",
+        "vendor-asyncapi",
+        "vendor-graphql-schema"
+      ],
+      "description": "How this row was produced. 'manual-*' = tier-1 bespoke extractor; 'llm-assisted' = tier-2; the vendor-* methods cover cases where the vendor publishes a machine-readable schema we can canonicalize."
+    },
+    "extraction_confidence": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Self-reported confidence for LLM-assisted rows (0.0 - 1.0). Manual rows leave this null. Quality audit (sub 1.8) thresholds on this field."
+    },
+    "notes": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 1000,
+      "description": "Free-text caveats: known schema drift, deprecation status, beta-flag visibility, etc."
+    }
+  }
+}

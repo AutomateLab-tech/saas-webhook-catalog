@@ -1,0 +1,16 @@
+default:
+  rps: 1.0           # max requests per second per domain
+  jitter: 0.1        # add random 0-jitter seconds between requests
+  respect_robots: true
+  user_agent: "automatelab-webhook-catalog/0.1 (+https://automatelab.tech/webhooks/)"
+
+overrides:
+  developer.zendesk.com:
+    rps: 1.0
+    # per ToS audit 2026-05-13: throttle to <=1 req/sec on Zendesk developer docs
+  developer.atlassian.com:
+    rps: 1.0
+    # per ToS audit 2026-05-13: throttle to <=1 req/sec on Atlassian developer docs
+  learn.microsoft.com:
+    rps: 0.5
+    # per ToS audit 2026-05-13: respectful fetch cadence required on learn.microsoft.com
