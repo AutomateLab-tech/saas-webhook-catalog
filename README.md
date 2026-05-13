@@ -27,11 +27,12 @@ One row per `(vendor, event_name)` pair. Each row carries the event identifier, 
 
 | | |
 | --- | --- |
-| Rows | 500+ events across 30 vendors (v1) |
+| Rows | 1,119 events across 30 vendors (v1) |
 | Format | Parquet (primary), JSONL (debug/fallback) |
 | Schema | [JSON Schema Draft 2020-12](./schema.json), 11 required + 10 optional fields per row |
 | Update cadence | Monthly auto-refresh; diff alerts on schema drift |
 | Source | Public vendor developer documentation, linked per row via `docs_url` |
+| Source code | [github.com/AutomateLab-tech/saas-webhook-catalog](https://github.com/AutomateLab-tech/saas-webhook-catalog) |
 
 ## Vendors covered (v1)
 
@@ -77,7 +78,7 @@ The authoritative schema is [schema.json](./schema.json). Summary:
 ```python
 from datasets import load_dataset
 
-ds = load_dataset("<org>/saas-webhook-catalog")
+ds = load_dataset("automatelab/saas-webhook-catalog")
 # Filter to one vendor:
 slack_events = ds["train"].filter(lambda row: row["vendor"] == "slack")
 # Find HMAC-signed events across vendors:
@@ -164,11 +165,11 @@ CC-BY-4.0 on the catalog itself; the underlying vendor facts are not relicensed.
   title  = {SaaS Webhook Event Catalog},
   author = {automatelab},
   year   = {2026},
-  url    = {https://huggingface.co/datasets/<org>/saas-webhook-catalog},
+  url    = {https://huggingface.co/datasets/automatelab/saas-webhook-catalog},
   note   = {Companion site: https://automatelab.tech/webhooks/}
 }
 ```
 
 ## Contributions
 
-Issues, schema corrections, vendor additions: open an issue on the HuggingFace dataset discussion or the source GitHub repo. New vendors are reviewed against the v1 selection criteria (team-ops category, public webhook docs, ≥5 event types, active product) and a ToS audit before inclusion.
+Issues, schema corrections, vendor additions: open an issue on the HuggingFace dataset discussion or on [github.com/AutomateLab-tech/saas-webhook-catalog](https://github.com/AutomateLab-tech/saas-webhook-catalog). New vendors are reviewed against the v1 selection criteria (team-ops category, public webhook docs, ≥5 event types, active product) and a ToS audit before inclusion.
