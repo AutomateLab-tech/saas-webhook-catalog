@@ -21,6 +21,7 @@ from catalog.fetcher import Fetcher
 
 class ExampleExtractor(ExtractorBase):
     slug = "example"
+    is_example = True
     docs_urls = ["https://example.com/docs/webhooks"]
 
     async def extract(self, fetcher: Fetcher) -> AsyncIterator[dict]:

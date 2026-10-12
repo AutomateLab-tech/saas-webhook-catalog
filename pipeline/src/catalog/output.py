@@ -51,6 +51,11 @@ class OutputWriter:
         """Write *rows* to both parquet and JSONL."""
         if not rows:
             return
+        # The legacy last_introspected_at field records extraction/generation,
+        # which static extractors can perform without fetching vendor docs.
+        # Preserve a separate explicit source-check date; never infer it from
+        # the generation date or from extraction confidence.
+        rows = [{**row, "source_checked_at": row.get("source_checked_at")} for row in rows]
         self._write_jsonl(rows)
         self._write_parquet(rows)
 

@@ -29,6 +29,7 @@ class ExtractorBase(ABC):
 
     slug: str
     docs_urls: list[str]
+    is_example: bool = False
 
     @abstractmethod
     async def extract(self, fetcher: "Fetcher") -> AsyncIterator[dict]:
@@ -56,6 +57,6 @@ def get_extractor(slug: str) -> ExtractorBase:
     return cls()
 
 
-def list_slugs() -> list[str]:
-    """Return all registered extractor slugs in sorted order."""
-    return sorted(_REGISTRY.keys())
+def list_slugs(*, include_examples: bool = False) -> list[str]:
+    """Production extraction excludes registered examples by their contract."""
+    return sorted(slug for slug, extractor in _REGISTRY.items() if include_examples or not extractor.is_example)

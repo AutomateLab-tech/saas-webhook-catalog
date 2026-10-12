@@ -173,3 +173,13 @@ CC-BY-4.0 on the catalog itself; the underlying vendor facts are not relicensed.
 ## Contributions
 
 Issues, schema corrections, vendor additions: open an issue on the HuggingFace dataset discussion or on [github.com/AutomateLab-tech/saas-webhook-catalog](https://github.com/AutomateLab-tech/saas-webhook-catalog). New vendors are reviewed against the v1 selection criteria (team-ops category, public webhook docs, ≥5 event types, active product) and a ToS audit before inclusion.
+
+## Maintenance and verification
+
+See [the maintenance guide](docs/maintenance-guide.md) for interpretation limits, current tool names where applicable, and reproducible verification.
+
+## October 2026 snapshot
+
+1,119 production events across 30 vendors. Static extractors were regenerated; this does not establish new vendor verification. source_checked_at remains null where not independently checked. Demonstration events are excluded.
+
+Snapshot prepared 12 October 2026. Publication time is recorded separately in the release receipt.

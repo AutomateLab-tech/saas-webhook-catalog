@@ -24,7 +24,7 @@ if not _SCHEMA_PATH.exists():
 with _SCHEMA_PATH.open(encoding="utf-8") as _f:
     _SCHEMA = json.load(_f)
 
-_VALIDATOR = Draft202012Validator(_SCHEMA)
+_VALIDATOR = Draft202012Validator(_SCHEMA, format_checker=Draft202012Validator.FORMAT_CHECKER)
 
 
 def validate(row: dict) -> list[ValidationError]:

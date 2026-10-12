@@ -217,6 +217,11 @@
       "format": "date-time",
       "description": "UTC timestamp of the last successful extraction of this row. Used by the monthly auto-update to surface stale rows."
     },
+    "source_checked_at": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "UTC time of an explicit check against current vendor documentation. Null means no check is recorded. Extraction/generation time and confidence do not establish source freshness."
+    },
     "source_extractor_version": {
       "type": "string",
       "pattern": "^v[0-9]+(\\.[0-9]+)*(-[a-z0-9]+)?$",
